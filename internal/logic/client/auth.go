@@ -73,29 +73,29 @@ func (s *SAuth) Code(v auth.CodeRequest) (err error) {
 
 // Login 用户登录
 func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error) {
-	user := &model.USER{}
-	if err := global.GVA_DB.Where("email = ?", v.Email).Take(user); err.RowsAffected == 0 {
+	u := &model.USER{}
+	if err := global.GVA_DB.Where("email = ?", v.Email).Take(u); err.RowsAffected == 0 {
 		return nil, errors.New("用户不存在")
 	}
 
-	if valid := utility.ValidPassword(v.Pwd, consts.SECRET, user.Pwd); !valid {
+	if valid := utility.ValidPassword(v.Pwd, consts.SECRET, u.Pwd); !valid {
 		return nil, errors.New("密码错误")
 	}
 
-	token, err := utility.MakeToken(user.UID)
+	token, err := utility.MakeToken(u.UID)
 	if err != nil {
 		return nil, errors.New("生成Token失败")
 	}
 
-	global.GVA_REDIS.Do(global.GVA_CTX, "set", user.UID+"_token", token)
+	global.GVA_REDIS.Do(global.GVA_CTX, "set", u.UID+"_token", token)
 
 	return &auth.LoginResponse{
-		Email:  user.Email,
-		Head:   user.Head,
-		Name:   user.Name,
-		Sex:    user.Sex,
-		Level:  user.Level,
-		Status: user.Status,
+		Email:  u.Email,
+		Head:   u.Head,
+		Name:   u.Name,
+		Sex:    u.Sex,
+		Level:  u.Level,
+		Status: u.Status,
 		Token:  token,
 	}, nil
 }
