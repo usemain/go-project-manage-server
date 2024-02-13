@@ -27,6 +27,6 @@ func (s *SUser) Userinfo(uid string) (data *user.UserinfoResponse, err error) {
 		Sex:    u.Sex,
 		Level:  u.Level,
 		Status: u.Status,
+		Token:  "",
 	}, nil
-
 }

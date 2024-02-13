@@ -7,4 +7,5 @@ type UserinfoResponse struct {
 	Sex    uint8  `json:"sex"`
 	Level  uint8  `json:"level"`
 	Status uint8  `json:"status"`
+	Token  string `json:"token"`
 }
