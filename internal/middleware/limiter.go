@@ -11,14 +11,14 @@ import (
 var limiter *ratelimit.Bucket
 
 func init() {
-	limiter = ratelimit.NewBucketWithQuantum(10*time.Second, 20, 15)
+	limiter = ratelimit.NewBucketWithQuantum(10*time.Second, 20, 10)
 }
 
 // RateLimiter 请求频繁拦截
 func RateLimiter() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if limiter.TakeAvailable(1) <= 0 {
-			utility.H(c, consts.StatusLimiterError, "你的请求太频繁了,请稍后再试!")
+			utility.H(c, consts.StatusLimiterError, "请勿频繁请求")
 			c.Abort()
 			return
 		}
