@@ -16,7 +16,7 @@ func MakeToken(UID string) (tokenString string, err error) {
 	claim := MyClaims{
 		UID: UID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(720 * time.Hour * time.Duration(1))), // 过期时间30小时
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(720 * time.Hour * time.Duration(1))), // 过期时间30天
 			IssuedAt:  jwt.NewNumericDate(time.Now()),                                         // 签发时间
 			NotBefore: jwt.NewNumericDate(time.Now()),                                         // 生效时间
 		}}
