@@ -1,7 +1,10 @@
 package initialize
 
 import (
+	"fmt"
 	"gin-choes-server/internal/global"
+	"gin-choes-server/internal/model"
+	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -11,13 +14,26 @@ import (
 )
 
 func InitMySQL() {
+	var ds = &model.DATABASES{}
+	filePath := "config/databases.yaml"
+	file, err := os.ReadFile(filePath)
+	if err != nil {
+		panic("Failed to read file -> " + err.Error())
+	}
+	if err = yaml.Unmarshal(file, ds); err != nil {
+		panic("Yaml unmarshal error -> " + err.Error())
+	}
+
 	newLogger := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 		SlowThreshold: time.Second, // 慢SQL阀值
 		LogLevel:      logger.Info, // 级别
 		Colorful:      true,        // 色彩
 	})
 
-	DSN := "root:a123456@tcp(127.0.0.1:3306)/gin_choes?charset=utf8mb3&parseTime=True&loc=Local"
+	DSN := fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
+		ds.MySQL.User, ds.MySQL.Password, ds.MySQL.Host, ds.MySQL.Port, ds.MySQL.Database, ds.MySQL.Charset,
+	)
 	db, err := gorm.Open(mysql.Open(DSN), &gorm.Config{Logger: newLogger})
 	if err != nil {
 		panic("MySQL connect error -> " + err.Error())

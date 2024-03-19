@@ -9,7 +9,6 @@ import (
 func init() {
 	initialize.InitRedis()
 	initialize.InitMySQL()
-	//global.GVA_DB.AutoMigrate(model.USER{})
 }
 
 func main() {
