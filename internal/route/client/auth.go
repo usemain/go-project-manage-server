@@ -6,10 +6,10 @@ import (
 )
 
 func AuthRoute(api *gin.RouterGroup) {
-	sign := api.Group("auth")
+	auth := api.Group("auth")
 	{
-		sign.GET("code", client.AuthNewV1().Code)
-		sign.POST("login", client.AuthNewV1().Login)
-		sign.POST("register", client.AuthNewV1().Register)
+		auth.GET("code", client.AuthNewV1().Code)
+		auth.POST("login", client.AuthNewV1().Login)
+		auth.POST("register", client.AuthNewV1().Register)
 	}
 }

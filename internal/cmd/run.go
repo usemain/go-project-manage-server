@@ -17,6 +17,7 @@ func Run(port string) {
 	api := app.Group("api")
 	client.AuthRoute(api)
 	client.UserRoute(api)
+	client.TaskRoute(api)
 
 	if err := app.Run(port); err != nil {
 		panic("Server run error -> " + err.Error())

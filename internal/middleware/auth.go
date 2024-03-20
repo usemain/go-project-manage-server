@@ -12,7 +12,7 @@ import (
 func AuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.GetHeader("Authorization") == "" {
-			utility.H(c, consts.StatusAuthError, "身份认证失败")
+			utility.ResultAuthError(c, consts.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		}
@@ -20,13 +20,13 @@ func AuthToken() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")[strings.LastIndex(c.GetHeader("Authorization"), "Bearer ")+7:]
 		data, err := utility.ParseToken(token)
 		if err != nil {
-			utility.H(c, consts.StatusAuthError, "身份认证失败")
+			utility.ResultAuthError(c, consts.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		}
 
 		if do := global.GVA_REDIS.Do(global.GVA_CTX, "get", data.UID+"_token"); do.Val() != token {
-			utility.H(c, consts.StatusAuthError, "身份认证失败")
+			utility.ResultAuthError(c, consts.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		} else {

@@ -18,7 +18,7 @@ func init() {
 func RateLimiter() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if limiter.TakeAvailable(1) <= 0 {
-			utility.H(c, consts.StatusLimiterError, "请勿频繁请求")
+			utility.Result(c, consts.StatusLimiterError, "请勿频繁请求")
 			c.Abort()
 			return
 		}

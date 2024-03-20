@@ -19,14 +19,14 @@ func AuthNewV1() auth.IAuth {
 func (u *AuthControllerV1) Code(c *gin.Context) {
 	v := auth.CodeRequest{}
 	if err := c.ShouldBindQuery(&v); err != nil {
-		utility.H(c, consts.StatusError, "获取失败")
+		utility.Result(c, consts.StatusError, "获取失败")
 		return
 	}
 
-	if err := client.Auth().Code(v); err == nil {
-		utility.H(c, consts.StatusOK, "获取成功")
+	if err := client.Auth().Code(v); err != nil {
+		utility.Result(c, consts.StatusError, err.Error())
 	} else {
-		utility.H(c, consts.StatusError, err.Error())
+		utility.Result(c, consts.StatusOK, "获取成功")
 	}
 }
 
@@ -34,19 +34,19 @@ func (u *AuthControllerV1) Code(c *gin.Context) {
 func (u *AuthControllerV1) Login(c *gin.Context) {
 	v := auth.LoginRequest{}
 	if err := c.ShouldBindJSON(&v); err != nil {
-		utility.H(c, consts.StatusError, "登录失败")
+		utility.Result(c, consts.StatusError, "登录失败")
 		return
 	}
 
 	if p := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]{5,15}$`); !p.MatchString(v.Pwd) {
-		utility.H(c, consts.StatusError, "登录失败")
+		utility.Result(c, consts.StatusError, "登录失败")
 		return
 	}
 
-	if data, err := client.Auth().Login(v); err == nil {
-		utility.D(c, consts.StatusOK, "登录成功", data)
+	if data, err := client.Auth().Login(v); err != nil {
+		utility.Result(c, consts.StatusError, "登录失败")
 	} else {
-		utility.H(c, consts.StatusError, "登录失败")
+		utility.ResultData(c, consts.StatusOK, "登录成功", data)
 	}
 }
 
@@ -54,18 +54,18 @@ func (u *AuthControllerV1) Login(c *gin.Context) {
 func (u *AuthControllerV1) Register(c *gin.Context) {
 	v := auth.RegisterRequest{}
 	if err := c.ShouldBindJSON(&v); err != nil {
-		utility.H(c, consts.StatusError, "注册失败")
+		utility.Result(c, consts.StatusError, "注册失败")
 		return
 	}
 
 	if p := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]{5,15}$`); !p.MatchString(v.Pwd) {
-		utility.H(c, consts.StatusError, "注册失败")
+		utility.Result(c, consts.StatusError, "注册失败")
 		return
 	}
 
-	if err := client.Auth().Register(v); err == nil {
-		utility.H(c, consts.StatusOK, "注册成功")
+	if err := client.Auth().Register(v); err != nil {
+		utility.Result(c, consts.StatusError, "注册失败")
 	} else {
-		utility.H(c, consts.StatusError, "注册失败")
+		utility.Result(c, consts.StatusOK, "注册成功")
 	}
 }

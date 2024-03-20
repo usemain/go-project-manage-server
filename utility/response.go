@@ -5,14 +5,14 @@ import (
 	"net/http"
 )
 
-func H(c *gin.Context, code int, msg string) {
+func Result(c *gin.Context, code int, msg string) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  msg,
 	})
 }
 
-func D(c *gin.Context, code int, msg string, data interface{}) {
+func ResultData(c *gin.Context, code int, msg string, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  msg,
@@ -20,11 +20,18 @@ func D(c *gin.Context, code int, msg string, data interface{}) {
 	})
 }
 
-func L(c *gin.Context, code int, msg string, data interface{}, total int) {
+func ResultDataList(c *gin.Context, code int, msg string, data interface{}, total int) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":  code,
 		"msg":   msg,
 		"data":  data,
 		"total": total,
+	})
+}
+
+func ResultAuthError(c *gin.Context, code int, msg string) {
+	c.JSON(http.StatusOK, gin.H{
+		"code": code,
+		"msg":  msg,
 	})
 }
