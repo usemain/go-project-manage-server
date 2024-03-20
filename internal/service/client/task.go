@@ -5,7 +5,7 @@ import (
 )
 
 type ITask interface {
-	SelectDateTask(v *task.SelectDateTaskResponse) (data []task.SelectDateTaskRequest, err error)
+	SelectDateTask(uid string, v *task.SelectDateTaskResponse) (data []task.SelectDateTaskRequest, total int64, err error)
 }
 
 var serviceTask ITask

@@ -20,12 +20,12 @@ func ResultData(c *gin.Context, code int, msg string, data interface{}) {
 	})
 }
 
-func ResultDataList(c *gin.Context, code int, msg string, data interface{}, total int) {
+func ResultDataList(c *gin.Context, code int, msg string, data interface{}, count int64) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":  code,
 		"msg":   msg,
 		"data":  data,
-		"total": total,
+		"count": count,
 	})
 }
 
