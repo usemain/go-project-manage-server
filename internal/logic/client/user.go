@@ -27,6 +27,7 @@ func (s *SUser) Userinfo(uid string) (data *user.UserinfoResponse, err error) {
 		Sex:           u.Sex,
 		VipLevel:      u.VipLevel,
 		VipExpireTime: u.VipExpireTime,
+		InviteCode:    u.InviteCode,
 		Status:        u.Status,
 	}, nil
 }

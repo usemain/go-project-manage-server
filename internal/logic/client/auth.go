@@ -89,54 +89,42 @@ func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error)
 	global.GVA_REDIS.Do(global.GVA_CTX, "set", u.Email+"_token", token)
 
 	var lastTime = time.Now().Format("2006-01-02 15:04:05")
-	if err := global.GVA_DB.Model(u).Update("last_time", lastTime); err.RowsAffected == 0 {
-		return nil, errors.New("更新登录时间失败")
-	}
+	global.GVA_DB.Model(&model.USER{}).Where("uid = ?", u.Uid).Update("last_time", lastTime)
 
 	// 判断是否组长或者有发布任务的权限
 	g := &model.GROUP{}
-	var IsGroupCreateTask bool
+	var isGroupCreateTask bool
 	if u.Gid != 0 {
-		if tx := global.GVA_DB.Where("g_id = ?", u.Gid).Take(g); tx.RowsAffected != 0 {
+		if tx := global.GVA_DB.Where("gid = ?", u.Gid).Take(g); tx.RowsAffected != 0 {
 			if g.Uid == u.Uid {
-				IsGroupCreateTask = true
+				isGroupCreateTask = true
 			} else {
 				// 判断用户是否在组内
 				UserSlice := strings.Split(g.GroupUsers, "-")
 				for _, v := range UserSlice {
 					if v == u.Uid {
-						IsGroupCreateTask = true
+						isGroupCreateTask = true
 						break
 					}
 				}
 			}
 		}
-
-		return &auth.LoginResponse{
-			Gid:               u.Gid,
-			IsGroupLeader:     g.Uid == u.Uid,
-			IsGroupCreateTask: IsGroupCreateTask,
-			LastTime:          lastTime,
-			Email:             u.Email,
-			Head:              u.Head,
-			Name:              u.Name,
-			Sex:               u.Sex,
-			VipLevel:          u.VipLevel,
-			VipExpireTime:     u.VipExpireTime,
-			Token:             token,
-		}, nil
-	} else {
-		return &auth.LoginResponse{
-			LastTime:      lastTime,
-			Email:         u.Email,
-			Head:          u.Head,
-			Name:          u.Name,
-			Sex:           u.Sex,
-			VipLevel:      u.VipLevel,
-			VipExpireTime: u.VipExpireTime,
-			Token:         token,
-		}, nil
 	}
+
+	return &auth.LoginResponse{
+		Gid:               u.Gid,
+		IsGroupLeader:     g.Uid == u.Uid,
+		IsGroupCreateTask: isGroupCreateTask,
+		LastTime:          lastTime,
+		Email:             u.Email,
+		Head:              u.Head,
+		Name:              u.Name,
+		Sex:               u.Sex,
+		VipLevel:          u.VipLevel,
+		VipExpireTime:     u.VipExpireTime,
+		InviteCode:        u.InviteCode,
+		Token:             token,
+	}, nil
 }
 
 // Register 用户注册
@@ -150,7 +138,7 @@ func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
 	}
 
 	if tx := global.GVA_DB.Create(model.USER{
-		Uid:        utility.GenerateUniqueID(32),
+		Uid:        utility.GenerateUniqueID(18),
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Email:      v.Email,
 		Pwd:        utility.MakePassword(v.Pwd, consts.SECRET),
@@ -158,6 +146,7 @@ func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
 		Name:       "新用户" + strconv.Itoa(rand.Int())[0:8],
 		Sex:        1,
 		VipLevel:   1,
+		InviteCode: utility.GenerateUniqueID(16),
 		Status:     true,
 	}); tx.RowsAffected == 0 {
 		return errors.New("注册失败")

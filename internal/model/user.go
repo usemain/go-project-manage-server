@@ -13,6 +13,7 @@ type USER struct {
 	Sex           uint8  `json:"sex" gorm:"comment:性别"`
 	VipLevel      uint8  `json:"vipLevel" gorm:"comment:等级"`
 	VipExpireTime string `json:"vipExpireTime" gorm:"comment:VIP到期时间"`
+	InviteCode    string `json:"inviteCode" gorm:"comment:邀请码"`
 	Status        bool   `json:"status" gorm:"comment:用户状态"`
 }
 
