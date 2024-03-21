@@ -21,11 +21,12 @@ func (s *SUser) Userinfo(uid string) (data *user.UserinfoResponse, err error) {
 	}
 
 	return &user.UserinfoResponse{
-		Email:  u.Email,
-		Head:   u.Head,
-		Name:   u.Name,
-		Sex:    u.Sex,
-		Level:  u.Level,
-		Status: u.Status,
+		Email:         u.Email,
+		Head:          u.Head,
+		Name:          u.Name,
+		Sex:           u.Sex,
+		VipLevel:      u.VipLevel,
+		VipExpireTime: u.VipExpireTime,
+		Status:        u.Status,
 	}, nil
 }

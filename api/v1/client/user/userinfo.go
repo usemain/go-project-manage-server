@@ -1,11 +1,12 @@
 package user
 
 type UserinfoResponse struct {
-	Email  string `json:"email"`
-	Head   string `json:"head"`
-	Name   string `json:"name"`
-	Sex    uint8  `json:"sex"`
-	Level  uint8  `json:"level"`
-	Status bool   `json:"status"`
-	Token  string `json:"token"`
+	Email         string `json:"email"`
+	Head          string `json:"head"`
+	Name          string `json:"name"`
+	Sex           uint8  `json:"sex"`
+	VipLevel      uint8  `json:"vipLevel"`
+	VipExpireTime string `json:"VipExpireTime"`
+	Status        bool   `json:"status"`
+	Token         string `json:"token"`
 }

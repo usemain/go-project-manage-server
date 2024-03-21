@@ -28,7 +28,6 @@ func (s *SAuth) Code(v auth.CodeRequest) (err error) {
 	if do := global.GVA_REDIS.Do(global.GVA_CTX, "get", v.Email+"_code"); do.Val() != nil {
 		return errors.New("验证码不能频繁发送")
 	}
-
 	e := email.NewEmail()
 	e.From = fmt.Sprintf("l111il@163.com")
 	e.To = []string{v.Email}
@@ -79,19 +78,16 @@ func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error)
 		return nil, errors.New("用户不存在或已被禁用")
 	}
 
-	// 验证密码
 	if valid := utility.ValidPassword(v.Pwd, consts.SECRET, u.Pwd); !valid {
 		return nil, errors.New("密码错误")
 	}
 
-	// 生成token
 	token, err := utility.MakeToken(u.Uid, v.Email)
 	if err != nil {
 		return nil, errors.New("token生成失败")
 	}
 	global.GVA_REDIS.Do(global.GVA_CTX, "set", u.Email+"_token", token)
 
-	// 更新登录时间
 	var lastTime = time.Now().Format("2006-01-02 15:04:05")
 	if err := global.GVA_DB.Model(u).Update("last_time", lastTime); err.RowsAffected == 0 {
 		return nil, errors.New("更新登录时间失败")
@@ -115,20 +111,32 @@ func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error)
 				}
 			}
 		}
-	}
 
-	return &auth.LoginResponse{
-		Gid:               u.Gid,
-		IsGroupLeader:     g.Uid == u.Uid,
-		IsGroupCreateTask: IsGroupCreateTask,
-		LastTime:          lastTime,
-		Email:             u.Email,
-		Head:              u.Head,
-		Name:              u.Name,
-		Sex:               u.Sex,
-		Level:             u.Level,
-		Token:             token,
-	}, nil
+		return &auth.LoginResponse{
+			Gid:               u.Gid,
+			IsGroupLeader:     g.Uid == u.Uid,
+			IsGroupCreateTask: IsGroupCreateTask,
+			LastTime:          lastTime,
+			Email:             u.Email,
+			Head:              u.Head,
+			Name:              u.Name,
+			Sex:               u.Sex,
+			VipLevel:          u.VipLevel,
+			VipExpireTime:     u.VipExpireTime,
+			Token:             token,
+		}, nil
+	} else {
+		return &auth.LoginResponse{
+			LastTime:      lastTime,
+			Email:         u.Email,
+			Head:          u.Head,
+			Name:          u.Name,
+			Sex:           u.Sex,
+			VipLevel:      u.VipLevel,
+			VipExpireTime: u.VipExpireTime,
+			Token:         token,
+		}, nil
+	}
 }
 
 // Register 用户注册
@@ -149,7 +157,7 @@ func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
 		Head:       "init.jpg",
 		Name:       "新用户" + strconv.Itoa(rand.Int())[0:8],
 		Sex:        1,
-		Level:      1,
+		VipLevel:   1,
 		Status:     true,
 	}); tx.RowsAffected == 0 {
 		return errors.New("注册失败")
