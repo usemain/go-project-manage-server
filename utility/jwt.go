@@ -8,13 +8,15 @@ import (
 )
 
 type MyClaims struct {
-	UID string `json:"uid"`
+	Uid   string `json:"uid"`
+	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func MakeToken(UID string) (tokenString string, err error) {
+func MakeToken(Uid, email string) (tokenString string, err error) {
 	claim := MyClaims{
-		UID: UID,
+		Uid:   Uid,
+		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(720 * time.Hour * time.Duration(1))), // 过期时间30天
 			IssuedAt:  jwt.NewNumericDate(time.Now()),                                         // 签发时间

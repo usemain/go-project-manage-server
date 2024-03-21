@@ -12,5 +12,8 @@ func init() {
 }
 
 func main() {
+	//global.GVA_DB.AutoMigrate(model.TASK{})
+	//global.GVA_DB.AutoMigrate(model.USER{})
+	//global.GVA_DB.AutoMigrate(model.GROUP{})
 	cmd.Run(":8888")
 }

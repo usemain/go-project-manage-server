@@ -21,7 +21,7 @@ func InitRedis() {
 		panic("Yaml unmarshal error -> " + err.Error())
 	}
 
-	DSN := fmt.Sprintf("%s:%s", ds.REDIS.Host, ds.REDIS.Port)
+	DSN := fmt.Sprintf("%s:%v", ds.REDIS.Host, ds.REDIS.Port)
 	global.GVA_REDIS = redis.NewClient(&redis.Options{
 		Addr: DSN,
 	})

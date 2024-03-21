@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -74,35 +75,65 @@ func (s *SAuth) Code(v auth.CodeRequest) (err error) {
 // Login 用户登录
 func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error) {
 	u := &model.USER{}
-	if err := global.GVA_DB.Where("email = ?", v.Email).Take(u); err.RowsAffected == 0 {
-		return nil, errors.New("用户不存在")
+	if tx := global.GVA_DB.Where("email = ? and status = ?", v.Email, true).Take(u); tx.RowsAffected == 0 {
+		return nil, errors.New("用户不存在或已被禁用")
 	}
 
+	// 验证密码
 	if valid := utility.ValidPassword(v.Pwd, consts.SECRET, u.Pwd); !valid {
 		return nil, errors.New("密码错误")
 	}
 
-	token, err := utility.MakeToken(u.UID)
+	// 生成token
+	token, err := utility.MakeToken(u.Uid, v.Email)
 	if err != nil {
-		return nil, errors.New("生成Token失败")
+		return nil, errors.New("token生成失败")
+	}
+	global.GVA_REDIS.Do(global.GVA_CTX, "set", u.Email+"_token", token)
+
+	// 更新登录时间
+	var lastTime = time.Now().Format("2006-01-02 15:04:05")
+	if err := global.GVA_DB.Model(u).Update("last_time", lastTime); err.RowsAffected == 0 {
+		return nil, errors.New("更新登录时间失败")
 	}
 
-	global.GVA_REDIS.Do(global.GVA_CTX, "set", u.UID+"_token", token)
+	// 判断是否组长或者有发布任务的权限
+	g := &model.GROUP{}
+	var IsGroupCreateTask bool
+	if u.Gid != 0 {
+		if tx := global.GVA_DB.Where("g_id = ?", u.Gid).Take(g); tx.RowsAffected != 0 {
+			if g.Uid == u.Uid {
+				IsGroupCreateTask = true
+			} else {
+				// 判断用户是否在组内
+				UserSlice := strings.Split(g.GroupUsers, "-")
+				for _, v := range UserSlice {
+					if v == u.Uid {
+						IsGroupCreateTask = true
+						break
+					}
+				}
+			}
+		}
+	}
 
 	return &auth.LoginResponse{
-		Email:  u.Email,
-		Head:   u.Head,
-		Name:   u.Name,
-		Sex:    u.Sex,
-		Level:  u.Level,
-		Status: u.Status,
-		Token:  token,
+		Gid:               u.Gid,
+		IsGroupLeader:     g.Uid == u.Uid,
+		IsGroupCreateTask: IsGroupCreateTask,
+		LastTime:          lastTime,
+		Email:             u.Email,
+		Head:              u.Head,
+		Name:              u.Name,
+		Sex:               u.Sex,
+		Level:             u.Level,
+		Token:             token,
 	}, nil
 }
 
 // Register 用户注册
 func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
-	if err := global.GVA_DB.Where("email = ?", v.Email).Take(&model.USER{}); err.RowsAffected != 0 {
+	if tx := global.GVA_DB.Where("email = ?", v.Email).Take(&model.USER{}); tx.RowsAffected != 0 {
 		return errors.New("账号已注册")
 	}
 
@@ -110,16 +141,17 @@ func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
 		return errors.New("验证码错误")
 	}
 
-	if err := global.GVA_DB.Create(model.USER{
-		UID:    utility.GenerateUniqueID(32),
-		Email:  v.Email,
-		Pwd:    utility.MakePassword(v.Pwd, consts.SECRET),
-		Head:   "init.jpg",
-		Name:   "新用户" + strconv.Itoa(rand.Int())[0:8],
-		Sex:    1,
-		Level:  1,
-		Status: 1,
-	}); err.RowsAffected == 0 {
+	if tx := global.GVA_DB.Create(model.USER{
+		Uid:        utility.GenerateUniqueID(32),
+		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		Email:      v.Email,
+		Pwd:        utility.MakePassword(v.Pwd, consts.SECRET),
+		Head:       "init.jpg",
+		Name:       "新用户" + strconv.Itoa(rand.Int())[0:8],
+		Sex:        1,
+		Level:      1,
+		Status:     true,
+	}); tx.RowsAffected == 0 {
 		return errors.New("注册失败")
 	}
 

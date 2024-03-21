@@ -19,6 +19,7 @@ func (t *TaskControllerV1) SelectDateTask(c *gin.Context) {
 	uid, ok := c.Get("uid")
 	if !ok {
 		utility.Result(c, consts.StatusError, "获取失败")
+		return
 	}
 
 	v := &task.SelectDateTaskResponse{}

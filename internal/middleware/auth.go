@@ -25,12 +25,12 @@ func AuthToken() gin.HandlerFunc {
 			return
 		}
 
-		if do := global.GVA_REDIS.Do(global.GVA_CTX, "get", data.UID+"_token"); do.Val() != token {
+		if do := global.GVA_REDIS.Do(global.GVA_CTX, "get", data.Email+"_token"); do.Val() != token {
 			utility.ResultAuthError(c, consts.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		} else {
-			c.Set("uid", data.UID)
+			c.Set("uid", data.Uid)
 			c.Next()
 		}
 	}

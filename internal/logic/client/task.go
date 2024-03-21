@@ -17,11 +17,11 @@ func init() {
 func (s *STask) SelectDateTask(uid string, v *task.SelectDateTaskResponse) (data []task.SelectDateTaskRequest, count int64, err error) {
 	var tasks []model.TASK
 
-	global.GVA_DB.Model(&model.TASK{}).Where("uid = ?", uid).Count(&count).Offset((v.Page - 1) * v.PageSize).Limit(v.PageSize).Find(&tasks)
+	global.GVA_DB.Model(&model.TASK{}).Where("uid = ? and create_time", uid, v.Date).Count(&count).Offset((v.Page - 1) * v.PageSize).Limit(v.PageSize).Find(&tasks)
 
 	for _, taskItem := range tasks {
 		item := task.SelectDateTaskRequest{
-			Tid:        taskItem.TID,
+			Tid:        taskItem.Tid,
 			CreateTime: taskItem.CreateTime,
 			Title:      taskItem.Title,
 			Content:    taskItem.Content,
