@@ -16,7 +16,7 @@ func RegisterServiceUser(s IUser) {
 
 func User() IUser {
 	if serviceUser == nil {
-		panic("implement not found for interface SUser, forgot register?")
+		panic("implement not found for interface IUser, forgot register?")
 	}
 	return serviceUser
 }

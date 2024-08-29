@@ -3,7 +3,7 @@ package model
 // USER 用户表
 type USER struct {
 	Uid           string `json:"uid" gorm:"primaryKey;comment:用户ID"`
-	Gid           int64  `json:"gid" gorm:"comment:小组"`
+	Gid           int64  `json:"gid" gorm:"comment:小组ID"`
 	CreateTime    string `json:"createTime" gorm:"comment:创建时间"`
 	LastTime      string `json:"lastTime" gorm:"comment:最后登录时间"`
 	Email         string `json:"email" gorm:"comment:邮箱账号"`
@@ -13,7 +13,7 @@ type USER struct {
 	Sex           uint8  `json:"sex" gorm:"comment:性别"`
 	VipLevel      uint8  `json:"vipLevel" gorm:"comment:等级"`
 	VipExpireTime string `json:"vipExpireTime" gorm:"comment:VIP到期时间"`
-	InviteCode    string `json:"inviteCode" gorm:"comment:邀请码"`
+	Secret        string `json:"secret" gorm:"comment:密钥"`
 	Status        bool   `json:"status" gorm:"comment:用户状态"`
 }
 

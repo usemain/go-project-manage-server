@@ -32,25 +32,13 @@ func (s *SAuth) Code(v auth.CodeRequest) (err error) {
 	e.From = fmt.Sprintf("l111il@163.com")
 	e.To = []string{v.Email}
 	// 生成6位随机验证码
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-	vCode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
-	t := time.Now().Format("2006-01-02 15:04:05")
-	// 设置邮件主题
+	vCode := fmt.Sprintf("%v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000))
 	e.Subject = "邮箱验证码"
-	// 设置文件发送的内容
 	content := fmt.Sprintf(`
 	<div>
-        <div>
-            尊敬的%s，您好！
-        </div>
         <div style="padding: 8px 40px 8px 50px;">
-            <p>您于 %s 提交的邮箱验证，本次验证码为
-				<br/>
-				<br/>
-				<span style="padding: 10px 30px;background-color: rgb(161, 162, 162);margin: 0 10px;border-radius: 10px;">
-					%s
-				</span>
-				<br/>
+            <p>
+				您于 %s 提交的邮箱验证，本次验证码为:<span>%s</span>
 				<br/>
 				为了保证账号安全，验证码有效期为5分钟。请确认为本人操作，切勿向他人泄露，感谢您的理解与使用。
 			</p>
@@ -59,7 +47,7 @@ func (s *SAuth) Code(v auth.CodeRequest) (err error) {
             <p>此邮箱为系统邮箱，请勿回复。</p>
         </div>
     </div>
-	`, e.To[0], t, vCode)
+	`, time.Now().Format("2006-01-02 15:04:05"), vCode)
 	e.HTML = []byte(content)
 	// 设置服务器相关的配置
 	if err := e.Send("smtp.163.com:25", smtp.PlainAuth("", "l111il@163.com", "TMGUTAJMNWXOLSYY", "smtp.163.com")); err != nil {
@@ -91,22 +79,15 @@ func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error)
 	var lastTime = time.Now().Format("2006-01-02 15:04:05")
 	global.GVA_DB.Model(&model.USER{}).Where("uid = ?", u.Uid).Update("last_time", lastTime)
 
-	// 判断是否组长或者有发布任务的权限
+	// 判断是否组长或者有没有发布任务的权限的组员
 	g := &model.GROUP{}
-	var isGroupCreateTask bool
-	if u.Gid != 0 {
-		if tx := global.GVA_DB.Where("gid = ?", u.Gid).Take(g); tx.RowsAffected != 0 {
-			if g.Uid == u.Uid {
+	var isGroupCreateTask = false
+	if tx := global.GVA_DB.Where("gid = ?", u.Gid).Take(g); tx.RowsAffected != 0 && u.Gid != 0 {
+		// 判断用户是否在组内
+		for _, v := range strings.Split(g.GroupUsers, "-") {
+			if v == u.Uid {
 				isGroupCreateTask = true
-			} else {
-				// 判断用户是否在组内
-				UserSlice := strings.Split(g.GroupUsers, "-")
-				for _, v := range UserSlice {
-					if v == u.Uid {
-						isGroupCreateTask = true
-						break
-					}
-				}
+				break
 			}
 		}
 	}
@@ -122,7 +103,7 @@ func (s *SAuth) Login(v auth.LoginRequest) (data *auth.LoginResponse, err error)
 		Sex:               u.Sex,
 		VipLevel:          u.VipLevel,
 		VipExpireTime:     u.VipExpireTime,
-		InviteCode:        u.InviteCode,
+		Secret:            u.Secret,
 		Token:             token,
 	}, nil
 }
@@ -138,7 +119,7 @@ func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
 	}
 
 	if tx := global.GVA_DB.Create(model.USER{
-		Uid:        utility.GenerateUniqueID(18),
+		Uid:        utility.GenerateUniqueID(18, v.Email),
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Email:      v.Email,
 		Pwd:        utility.MakePassword(v.Pwd, consts.SECRET),
@@ -146,7 +127,7 @@ func (s *SAuth) Register(v auth.RegisterRequest) (err error) {
 		Name:       "新用户" + strconv.Itoa(rand.Int())[0:8],
 		Sex:        1,
 		VipLevel:   1,
-		InviteCode: utility.GenerateUniqueID(16),
+		Secret:     utility.GenerateUniqueID(16, v.Email),
 		Status:     true,
 	}); tx.RowsAffected == 0 {
 		return errors.New("注册失败")

@@ -7,7 +7,7 @@ type UserinfoResponse struct {
 	Sex           uint8  `json:"sex"`
 	VipLevel      uint8  `json:"vipLevel"`
 	VipExpireTime string `json:"VipExpireTime"`
-	InviteCode    string `json:"inviteCode"`
+	Secret        string `json:"secret"`
 	Status        bool   `json:"status"`
 	Token         string `json:"token"`
 }

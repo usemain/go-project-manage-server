@@ -16,7 +16,7 @@ func RegisterServiceTask(s ITask) {
 
 func Task() ITask {
 	if serviceTask == nil {
-		panic("implement not found for interface STask, forgot register?")
+		panic("implement not found for interface ITask, forgot register?")
 	}
 	return serviceTask
 }

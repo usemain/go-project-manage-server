@@ -18,7 +18,7 @@ func RegisterServiceAuth(s IAuth) {
 
 func Auth() IAuth {
 	if serviceUser == nil {
-		panic("implement not found for interface SUser, forgot register?")
+		panic("implement not found for interface IAuth, forgot register?")
 	}
 	return serviceAuth
 }
