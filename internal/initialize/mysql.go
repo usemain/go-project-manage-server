@@ -2,8 +2,8 @@ package initialize
 
 import (
 	"fmt"
-	"gin-choes-server/internal/global"
-	"gin-choes-server/internal/model"
+	"go-project-manage-server/internal/global"
+	"go-project-manage-server/internal/model"
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -25,9 +25,9 @@ func InitMySQL() {
 	}
 
 	newLogger := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-		SlowThreshold: time.Second, // 慢SQL阀值
-		LogLevel:      logger.Info, // 级别
-		Colorful:      true,        // 色彩
+		SlowThreshold: time.Second,
+		LogLevel:      logger.Info,
+		Colorful:      true,
 	})
 
 	DSN := fmt.Sprintf(

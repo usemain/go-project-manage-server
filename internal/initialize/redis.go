@@ -2,10 +2,10 @@ package initialize
 
 import (
 	"fmt"
-	"gin-choes-server/internal/global"
-	"gin-choes-server/internal/model"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/go-redis/redis/v8"
+	"go-project-manage-server/internal/global"
+	"go-project-manage-server/internal/model"
 	"gopkg.in/yaml.v3"
 	"os"
 )
