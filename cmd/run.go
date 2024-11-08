@@ -5,7 +5,7 @@ import (
 	"github.com/juju/ratelimit"
 	"go-project-manage-server/internal/constants"
 	"go-project-manage-server/internal/handler"
-	"go-project-manage-server/utils"
+	"go-project-manage-server/pkg/response"
 	"net/http"
 	"time"
 )
@@ -20,7 +20,7 @@ func init() {
 func RateLimiter() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if limiter.TakeAvailable(1) <= 0 {
-			utils.Result(c, constants.StatusLimiterError, "请勿频繁请求")
+			response.Result(c, constants.StatusLimiterError, "请勿频繁请求")
 			c.Abort()
 			return
 		}

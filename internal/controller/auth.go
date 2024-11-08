@@ -5,7 +5,7 @@ import (
 	"go-project-manage-server/api/auth"
 	"go-project-manage-server/internal/constants"
 	"go-project-manage-server/internal/service"
-	"go-project-manage-server/utils"
+	"go-project-manage-server/pkg/response"
 	"regexp"
 )
 
@@ -19,14 +19,14 @@ func AuthNew() authApi.IAuth {
 func (u *AuthController) Code(c *gin.Context) {
 	v := authApi.CodeRequest{}
 	if err := c.ShouldBindQuery(&v); err != nil {
-		utils.Result(c, constants.StatusError, "请求参数不合法")
+		response.Result(c, constants.StatusError, "请求参数不合法")
 		return
 	}
 
 	if err := service.Auth().Code(v); err != nil {
-		utils.Result(c, constants.StatusError, err.Error())
+		response.Result(c, constants.StatusError, err.Error())
 	} else {
-		utils.Result(c, constants.StatusOK, "获取成功")
+		response.Result(c, constants.StatusOK, "获取成功")
 	}
 }
 
@@ -34,19 +34,19 @@ func (u *AuthController) Code(c *gin.Context) {
 func (u *AuthController) Login(c *gin.Context) {
 	v := authApi.LoginRequest{}
 	if err := c.ShouldBindJSON(&v); err != nil {
-		utils.Result(c, constants.StatusError, "请求参数不合法")
+		response.Result(c, constants.StatusError, "请求参数不合法")
 		return
 	}
 
 	if p := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]{5,15}$`); !p.MatchString(v.Pwd) {
-		utils.Result(c, constants.StatusError, "账号或密码格式不符合要求")
+		response.Result(c, constants.StatusError, "账号或密码格式不符合要求")
 		return
 	}
 
 	if data, err := service.Auth().Login(v); err != nil {
-		utils.Result(c, constants.StatusError, "登录失败")
+		response.Result(c, constants.StatusError, err.Error())
 	} else {
-		utils.ResultData(c, constants.StatusOK, "登录成功", data)
+		response.ResultData(c, constants.StatusOK, "登录成功", data)
 	}
 }
 
@@ -54,18 +54,18 @@ func (u *AuthController) Login(c *gin.Context) {
 func (u *AuthController) Register(c *gin.Context) {
 	v := authApi.RegisterRequest{}
 	if err := c.ShouldBindJSON(&v); err != nil {
-		utils.Result(c, constants.StatusError, "请求参数不合法")
+		response.Result(c, constants.StatusError, "请求参数不合法")
 		return
 	}
 
 	if p := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]{5,15}$`); !p.MatchString(v.Pwd) {
-		utils.Result(c, constants.StatusError, "账号或密码格式不符合要求")
+		response.Result(c, constants.StatusError, "账号或密码格式不符合要求")
 		return
 	}
 
 	if err := service.Auth().Register(v); err != nil {
-		utils.Result(c, constants.StatusError, "注册失败")
+		response.Result(c, constants.StatusError, err.Error())
 	} else {
-		utils.Result(c, constants.StatusOK, "注册成功")
+		response.Result(c, constants.StatusOK, "注册成功")
 	}
 }

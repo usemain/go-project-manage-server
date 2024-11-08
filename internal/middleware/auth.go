@@ -4,7 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-project-manage-server/internal/constants"
 	"go-project-manage-server/internal/global"
-	"go-project-manage-server/utils"
+	"go-project-manage-server/pkg/response"
+	"go-project-manage-server/pkg/utils"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ import (
 func AuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.GetHeader("Authorization") == "" {
-			utils.ResultAuthError(c, constants.StatusUnauthorized, "身份认证失败")
+			response.ResultAuthError(c, constants.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		}
@@ -20,13 +21,13 @@ func AuthToken() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")[strings.LastIndex(c.GetHeader("Authorization"), "Bearer ")+7:]
 		data, err := utils.ParseToken(token)
 		if err != nil {
-			utils.ResultAuthError(c, constants.StatusUnauthorized, "身份认证失败")
+			response.ResultAuthError(c, constants.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		}
 
 		if do := global.GVA_REDIS.Do(global.GVA_CTX, "get", data.Email+"_token"); do.Val() != token {
-			utils.ResultAuthError(c, constants.StatusUnauthorized, "身份认证失败")
+			response.ResultAuthError(c, constants.StatusUnauthorized, "身份认证失败")
 			c.Abort()
 			return
 		} else {

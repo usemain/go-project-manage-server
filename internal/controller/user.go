@@ -5,7 +5,7 @@ import (
 	"go-project-manage-server/api/user"
 	"go-project-manage-server/internal/constants"
 	"go-project-manage-server/internal/service"
-	"go-project-manage-server/utils"
+	"go-project-manage-server/pkg/response"
 	"strings"
 )
 
@@ -19,14 +19,14 @@ func UserNew() userApi.IUser {
 func (u *UserController) Userinfo(c *gin.Context) {
 	uid, ok := c.Get("uid")
 	if !ok {
-		utils.Result(c, constants.StatusError, "获取失败")
+		response.Result(c, constants.StatusError, "获取失败")
 	}
 
 	if data, err := service.User().Userinfo(uid.(string)); err != nil {
-		utils.Result(c, constants.StatusError, "获取失败")
+		response.Result(c, constants.StatusError, err.Error())
 	} else {
 		token := c.GetHeader("Authorization")[strings.LastIndex(c.GetHeader("Authorization"), "Bearer ")+7:]
 		data.Token = token
-		utils.ResultData(c, constants.StatusOK, "获取成功", data)
+		response.ResultData(c, constants.StatusOK, "获取成功", data)
 	}
 }

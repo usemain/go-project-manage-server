@@ -5,7 +5,7 @@ import (
 	"go-project-manage-server/api/task"
 	"go-project-manage-server/internal/constants"
 	"go-project-manage-server/internal/service"
-	"go-project-manage-server/utils"
+	"go-project-manage-server/pkg/response"
 )
 
 type TaskController struct{}
@@ -18,19 +18,19 @@ func TaskNew() taskApi.ITask {
 func (t *TaskController) SelectDateTask(c *gin.Context) {
 	uid, ok := c.Get("uid")
 	if !ok {
-		utils.Result(c, constants.StatusError, "获取失败")
+		response.Result(c, constants.StatusError, "获取失败")
 		return
 	}
 
 	v := &taskApi.SelectDateTaskResponse{}
 	if err := c.ShouldBindJSON(&v); err != nil {
-		utils.Result(c, constants.StatusError, err.Error())
+		response.Result(c, constants.StatusError, err.Error())
 		return
 	}
 
 	if data, count, err := service.Task().SelectDateTask(uid.(string), v); err != nil {
-		utils.Result(c, constants.StatusError, err.Error())
+		response.Result(c, constants.StatusError, err.Error())
 	} else {
-		utils.ResultDataList(c, constants.StatusOK, "获取成功", data, count)
+		response.ResultDataList(c, constants.StatusOK, "获取成功", data, count)
 	}
 }

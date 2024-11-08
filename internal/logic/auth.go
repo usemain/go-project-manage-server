@@ -9,7 +9,7 @@ import (
 	"go-project-manage-server/internal/global"
 	"go-project-manage-server/internal/model"
 	"go-project-manage-server/internal/service"
-	"go-project-manage-server/utils"
+	"go-project-manage-server/pkg/utils"
 	"math/rand"
 	"net/smtp"
 	"strconv"
